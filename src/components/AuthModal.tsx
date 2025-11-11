@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 interface Props {
   mode: "login" | "signup";
   formData: any;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onSubmit: () => void;
   onClose: () => void;
   error: string;
@@ -73,14 +73,59 @@ const AuthModal: React.FC<Props> = ({
         />
 
         {mode === "signup" && (
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            value={formData.confirmPassword}
-            onChange={onChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-          />
+          <>
+            <input
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={onChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+            />
+
+            {/* Learning Style Selections */}
+            <div className="grid grid-cols-1 gap-3">
+              <select
+                name="active_reflective"
+                value={formData.active_reflective}
+                onChange={onChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="Active">Active Learner</option>
+                <option value="Reflective">Reflective Learner</option>
+              </select>
+
+              <select
+                name="sensing_intuitive"
+                value={formData.sensing_intuitive}
+                onChange={onChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="Sensing">Sensing Learner</option>
+                <option value="Intuitive">Intuitive Learner</option>
+              </select>
+
+              <select
+                name="visual_verbal"
+                value={formData.visual_verbal}
+                onChange={onChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="Visual">Visual Learner</option>
+                <option value="Verbal">Verbal Learner</option>
+              </select>
+
+              <select
+                name="sequential_global"
+                value={formData.sequential_global}
+                onChange={onChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="Sequential">Sequential Learner</option>
+                <option value="Global">Global Learner</option>
+              </select>
+            </div>
+          </>
         )}
 
         {error && (
