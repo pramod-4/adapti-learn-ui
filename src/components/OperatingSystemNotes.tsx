@@ -1,12 +1,44 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
+const YT_VIDEOS: Record<string, string> = {
+  "Unit 1: Introduction to Operating Systems": "https://www.youtube.com/embed/vBURTt97EkA",
+  "Unit 2: Process Management": "https://www.youtube.com/embed/aQCrn1JPwjs",
+  "Unit 3: Memory Management": "https://www.youtube.com/embed/puobwv1xjqc",
+  "Unit 4: File Systems and Storage Management": "https://www.youtube.com/embed/gNy2UdMQUJU",
+  "Unit 5: Deadlocks and Synchronization": "https://www.youtube.com/embed/rq-AtNXPHbM",
+};
+
+interface Topic {
+  title: string;
+  overview: string;
+  theory: string;
+  example_or_analogy?: string;
+  key_points?: string[];
+  real_world_examples?: string[];
+  step_by_step_summary?: string[];
+  conceptual_focus?: string[];
+  connections?: string[];
+  engagement_task?: string;
+  scenario?: string;
+  self_reflection?: string;
+  summary_note?: string;
+}
+
+interface Unit {
+  unit: string;
+  topics: Topic[];
+}
+
+interface NotesResponse {
+  units: Unit[];
+}
 
 const OperatingSystemsNotes: React.FC = () => {
   const { userId, learningStyles } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [notes, setNotes] = useState<any>(null);
-  const [currentUnit, setCurrentUnit] = useState(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [notes, setNotes] = useState<NotesResponse | null>(null);
+  const [currentUnit, setCurrentUnit] = useState<number>(0);
 
   const generateNotes = async () => {
     if (!userId) {
@@ -27,9 +59,10 @@ const OperatingSystemsNotes: React.FC = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || "Failed to generate notes");
 
-      setNotes(data.generated_notes);
-    } catch (err: any) {
-      alert(err.message);
+      setNotes(data.generated_notes as NotesResponse);
+    } catch (err: unknown) {
+      if (err instanceof Error) alert(err.message);
+      else alert("An unknown error occurred.");
     } finally {
       setLoading(false);
     }
@@ -66,7 +99,7 @@ const OperatingSystemsNotes: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-6 mt-6">
-          {notes.units?.map((unit: any, index: number) => {
+          {notes.units?.map((unit, index) => {
             const unlocked = !isSequential || index <= currentUnit;
 
             return (
@@ -82,7 +115,7 @@ const OperatingSystemsNotes: React.FC = () => {
 
                 {unlocked ? (
                   <div className="mt-3 space-y-4">
-                    {unit.topics.map((topic: any, tIndex: number) => (
+                    {unit.topics.map((topic, tIndex) => (
                       <details key={tIndex} className="border rounded-lg p-3">
                         <summary className="font-medium text-gray-800 cursor-pointer">
                           {topic.title}
@@ -100,7 +133,7 @@ const OperatingSystemsNotes: React.FC = () => {
                             <div>
                               <strong>Key Points:</strong>
                               <ul className="list-disc ml-6">
-                                {topic.key_points.map((point: string, i: number) => (
+                                {topic.key_points.map((point, i) => (
                                   <li key={i}>{point}</li>
                                 ))}
                               </ul>
@@ -111,7 +144,7 @@ const OperatingSystemsNotes: React.FC = () => {
                             <div>
                               <strong>Real-World Examples:</strong>
                               <ul className="list-disc ml-6">
-                                {topic.real_world_examples.map((ex: string, i: number) => (
+                                {topic.real_world_examples.map((ex, i) => (
                                   <li key={i}>{ex}</li>
                                 ))}
                               </ul>
@@ -122,7 +155,7 @@ const OperatingSystemsNotes: React.FC = () => {
                             <div>
                               <strong>Step-by-Step Summary:</strong>
                               <ol className="list-decimal ml-6">
-                                {topic.step_by_step_summary.map((step: string, i: number) => (
+                                {topic.step_by_step_summary.map((step, i) => (
                                   <li key={i}>{step}</li>
                                 ))}
                               </ol>
@@ -133,7 +166,7 @@ const OperatingSystemsNotes: React.FC = () => {
                             <div>
                               <strong>Conceptual Focus:</strong>
                               <ul className="list-disc ml-6">
-                                {topic.conceptual_focus.map((idea: string, i: number) => (
+                                {topic.conceptual_focus.map((idea, i) => (
                                   <li key={i}>{idea}</li>
                                 ))}
                               </ul>
@@ -144,7 +177,7 @@ const OperatingSystemsNotes: React.FC = () => {
                             <div>
                               <strong>Connections:</strong>
                               <ul className="list-disc ml-6">
-                                {topic.connections.map((conn: string, i: number) => (
+                                {topic.connections.map((conn, i) => (
                                   <li key={i}>{conn}</li>
                                 ))}
                               </ul>
@@ -167,6 +200,25 @@ const OperatingSystemsNotes: React.FC = () => {
                         </div>
                       </details>
                     ))}
+
+                    {learningStyles?.visual_verbal === "Visual" && YT_VIDEOS[unit.unit] && (
+                      <div className="my-4">
+                        <h3 className="text-indigo-600 font-semibold text-lg mb-2">
+                          🎥 Visual Learning Aid:
+                        </h3>
+                        <div className="flex justify-center">
+                          <iframe
+                            width="560"
+                            height="315"
+                            src={YT_VIDEOS[unit.unit]}
+                            title={unit.unit}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="rounded-xl shadow-md border"
+                          ></iframe>
+                        </div>
+                      </div>
+                    )}
 
                     {isSequential && index === currentUnit && (
                       <button

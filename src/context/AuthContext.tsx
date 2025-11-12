@@ -17,7 +17,7 @@ interface ParameterData {
 }
 
 /** Represents learner profile (backend: LearnerProfileBase) */
-interface LearningStyle {
+export interface LearningStyle {
   active_reflective: string;
   sensing_intuitive: string;
   visual_verbal: string;

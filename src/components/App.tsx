@@ -86,8 +86,9 @@ export default function App() {
       login(data.username || formData.username, data.user_id, data.learning_style);
       setShowAuthModal(false);
       setFormData(initialFormState);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      if(err instanceof Error) setError(err.message);
+      else setError("An unknown error occurred.");
     } finally {
       setLoading(false);
     }

@@ -1,18 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
 
-interface Props {
-  mode: "login" | "signup";
-  formData: any;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  onSubmit: () => void;
-  onClose: () => void;
-  error: string;
-  loading: boolean;
-  toggleMode: () => void;
-}
-
-const AuthModal: React.FC<Props> = ({
+const AuthModal = ({
   mode,
   formData,
   onChange,
@@ -83,7 +72,6 @@ const AuthModal: React.FC<Props> = ({
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
             />
 
-            {/* Learning Style Selections */}
             <div className="grid grid-cols-1 gap-3">
               <select
                 name="active_reflective"

@@ -1,138 +1,124 @@
 import React, { useState } from "react";
+import { X } from "lucide-react";
+import { LearningStyle } from "../context/AuthContext";
 import { useAuth } from "../context/AuthContext";
 
-interface ParameterData {
-  interaction_count: number;
-  avg_session_length: number;
-  time_visual_content: number;
-  time_text_content: number;
-  visual_text_ratio: number;
-  quiz_score_visual: number;
-  quiz_score_text: number;
-  navigation_jump_count: number;
-  reflection_time_avg: number;
-  content_revisit_rate: number;
-  theory_practice_ratio: number;
-}
 
 interface Props {
   userId: number;
-  currentStyle: {
-    active_reflective: string;
-    sensing_intuitive: string;
-    visual_verbal: string;
-    sequential_global: string;
-    parameters: ParameterData; 
-  };
+  currentStyle: LearningStyle;
   onClose: () => void;
 }
 
-export default function EditLearningStyleModal({ userId, currentStyle, onClose }: Props) {
-  const [form, setForm] = useState(currentStyle);
+const EditLearningStyleModal: React.FC<Props> = ({ userId, currentStyle, onClose }) => {
+  const [formData, setFormData] = useState<LearningStyle>(currentStyle);
   const [loading, setLoading] = useState(false);
-  const { updateLearningStyles } = useAuth();
+  const [error, setError] = useState("");
+  const {updateLearningStyles} = useAuth();
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value as LearningStyle[keyof LearningStyle] });
   };
 
-  const handleSubmit = async () => {
-    setLoading(true);
+  const handleSave = async () => {
     try {
+      setLoading(true);
+      setError("");
+
       const response = await fetch(`http://127.0.0.1:8000/profile/update-style/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          active_reflective: form.active_reflective,
-          sensing_intuitive: form.sensing_intuitive,
-          visual_verbal: form.visual_verbal,
-          sequential_global: form.sequential_global,
-          parameters: form.parameters, 
-        }),
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
-      console.log("Backend response:", data);
-
+      updateLearningStyles(formData);
       if (!response.ok) throw new Error(data.detail || "Failed to update learning style");
 
-      updateLearningStyles({
-        active_reflective: data.updated_profile.active_reflective,
-        sensing_intuitive: data.updated_profile.sensing_intuitive,
-        visual_verbal: data.updated_profile.visual_verbal,
-        sequential_global: data.updated_profile.sequential_global,
-        parameters: data.updated_profile.parameters, 
-      });
-
-      alert("✅ Learning style updated successfully!");
+      alert("Learning style updated successfully!");
       onClose();
-    } catch (err: any) {
-      console.error("Error updating learning style:", err);
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message);
+      else setError("An unknown error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[999]">
-      <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">Edit Learning Style</h2>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+        >
+          <X className="w-6 h-6" />
+        </button>
 
-        {/* Style dropdowns */}
+        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
+          Edit Learning Style
+        </h2>
+
         <div className="space-y-3">
-          {["active_reflective", "sensing_intuitive", "visual_verbal", "sequential_global"].map((key) => (
-            <div key={key}>
-              <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
-                {key.replace("_", " ")}
-              </label>
-              <select
-                name={key}
-                value={(form as any)[key]}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              >
-                {key === "active_reflective" && (
-                  <>
-                    <option value="Active">Active</option>
-                    <option value="Reflective">Reflective</option>
-                  </>
-                )}
-                {key === "sensing_intuitive" && (
-                  <>
-                    <option value="Sensing">Sensing</option>
-                    <option value="Intuitive">Intuitive</option>
-                  </>
-                )}
-                {key === "visual_verbal" && (
-                  <>
-                    <option value="Visual">Visual</option>
-                    <option value="Verbal">Verbal</option>
-                  </>
-                )}
-                {key === "sequential_global" && (
-                  <>
-                    <option value="Sequential">Sequential</option>
-                    <option value="Global">Global</option>
-                  </>
-                )}
-              </select>
-            </div>
-          ))}
+          <select
+            name="active_reflective"
+            value={formData.active_reflective}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="Active">Active Learner</option>
+            <option value="Reflective">Reflective Learner</option>
+          </select>
+
+          <select
+            name="sensing_intuitive"
+            value={formData.sensing_intuitive}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="Sensing">Sensing Learner</option>
+            <option value="Intuitive">Intuitive Learner</option>
+          </select>
+
+          <select
+            name="visual_verbal"
+            value={formData.visual_verbal}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="Visual">Visual Learner</option>
+            <option value="Verbal">Verbal Learner</option>
+          </select>
+
+          <select
+            name="sequential_global"
+            value={formData.sequential_global}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="Sequential">Sequential Learner</option>
+            <option value="Global">Global Learner</option>
+          </select>
         </div>
 
-        {/* Footer buttons */}
+        {error && (
+          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+
         <div className="mt-6 flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-100 transition"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
           >
             Cancel
           </button>
           <button
-            onClick={handleSubmit}
+            onClick={handleSave}
             disabled={loading}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
           >
             {loading ? "Saving..." : "Save"}
           </button>
@@ -140,4 +126,6 @@ export default function EditLearningStyleModal({ userId, currentStyle, onClose }
       </div>
     </div>
   );
-}
+};
+
+export default EditLearningStyleModal;
