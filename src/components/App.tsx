@@ -7,6 +7,8 @@ import FeaturesSection from "./FeaturesSection";
 import AuthModal from "./AuthModal";
 import Dashboard from "./Dashbord";
 import OperatingSystemsNotes from "./OperatingSystemNotes";
+import TutorChat from "./TutorChat";
+import VoiceAgent from "./VoiceAgent";
 
 import { useAuth } from "../context/AuthContext";
 
@@ -22,7 +24,7 @@ const initialFormState = {
 };
 
 export default function App() {
-  const { isLoggedIn, username, login, logout } = useAuth();
+  const { isLoggedIn, username, login, userId , learningStyles } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [error, setError] = useState("");
@@ -107,6 +109,11 @@ export default function App() {
         <>
           <Dashboard username={username} />
           <OperatingSystemsNotes />
+          {learningStyles?.visual_verbal === "Visual" ? (
+              <TutorChat userId={userId} />
+            ) : (
+              <VoiceAgent />
+            )}
         </>
       )}
 
